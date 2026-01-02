@@ -1,9 +1,12 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles # YENİ: HTML dosyalarını sunmak için şart
+from fastapi.responses import FileResponse  # YENİ: Anasayfayı yönlendirmek için şart
 from sqlalchemy.orm import Session
 from typing import List
 import models, schemas
 from database import engine, SessionLocal
+import os
 
 # Tabloları oluştur
 models.Base.metadata.create_all(bind=engine)
@@ -18,6 +21,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# --- KRİTİK DÜZELTME BAŞLANGICI ---
+
+# 1. Static Klasörünü Tanıt (Render'ın HTML dosyalarını bulması için)
+# Bu kod diyor ki: "/static" adresine girilirse "static" klasöründeki dosyayı ver.
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# 2. Anasayfa Yönlendirmesi (Site açılınca direkt index.html gelsin)
+# Kullanıcı siteye girdiği an (root url) index.html dosyasını gönderiyoruz.
+@app.get("/")
+def read_root():
+    return FileResponse('static/index.html')
+
+# --- KRİTİK DÜZELTME BİTİŞİ ---
+
+
 # Database Bağlantısı
 def get_db():
     db = SessionLocal()
@@ -26,15 +44,13 @@ def get_db():
     finally:
         db.close()
 
-# --- KAYIT OLMA (GÜNCELLENDİ) ---
+# --- KAYIT OLMA ---
 @app.post("/register")
 def register(user: schemas.RegisterRequest, db: Session = Depends(get_db)):
-    # 1. Email kontrolü
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Bu e-posta zaten kayıtlı!")
     
-    # 2. Kullanıcıyı Kaydet (Giriş yapabilmesi için)
     new_user = models.User(
         name=user.name,
         email=user.email,
@@ -43,13 +59,11 @@ def register(user: schemas.RegisterRequest, db: Session = Depends(get_db)):
     )
     db.add(new_user)
     
-    # 3. EĞER HOCAYSA -> ARAŞTIRMACI LİSTESİNE DE EKLE
-    # Böylece proje eklerken adı listede çıkar.
     if user.role == "researcher":
         new_researcher = models.Researcher(
             name=user.name,
             email=user.email,
-            field="Genel", # Varsayılan alan
+            field="Genel",
             profile="#"
         )
         db.add(new_researcher)
@@ -69,11 +83,9 @@ def login(creds: schemas.LoginRequest, db: Session = Depends(get_db)):
     return {"status": "success", "user": user.name, "role": user.role}
 
 # --- VERİ LİSTELEME ---
-# 1. Yayınları Listeleme
 @app.get("/publications", response_model=List[schemas.PublicationOut])
 def get_publications(db: Session = Depends(get_db)):
     pubs = db.query(models.Publication).all()
-    # Backend veriyi şablona uydurarak gönderir
     return [
         {
             "id": p.id, 
@@ -85,7 +97,6 @@ def get_publications(db: Session = Depends(get_db)):
         for p in pubs
     ]
 
-# 2. Yayın Ekleme
 @app.post("/publications")
 def create_publication(item: schemas.PublicationCreate, db: Session = Depends(get_db)):
     new_pub = models.Publication(
@@ -122,7 +133,6 @@ def get_theses(db: Session = Depends(get_db)):
         } for t in theses
     ]
 
-# --- VERİ EKLEME ---
 @app.post("/projects")
 def create_project(item: schemas.ProjectCreate, db: Session = Depends(get_db)):
     new_project = models.Project(title=item.title, status=item.status, year=item.year, researcher_id=item.researcher_id)
@@ -137,17 +147,21 @@ def create_thesis(item: schemas.ThesisCreate, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Tez eklendi"}
 
-# --- BAŞLANGIÇ VERİLERİ ---
 @app.on_event("startup")
 def startup_data():
     db = SessionLocal()
+    # Eğer hiç araştırmacı yoksa örnek veri ekle
     if not db.query(models.Researcher).first():
         r1 = models.Researcher(name="Dr. Ali Yılmaz", field="Yapay Zeka", email="ali@uni.edu", profile="#")
         db.add(r1)
         db.commit()
         db.refresh(r1)
-        admin = models.User(name="Yönetici", email="admin@avesis.com", password="123", role="admin")
-        db.add(admin)
+        
+        # Admin ekle (Eğer yoksa)
+        if not db.query(models.User).filter(models.User.email == "admin@avesis.com").first():
+            admin = models.User(name="Yönetici", email="admin@avesis.com", password="123", role="admin")
+            db.add(admin)
+            
         p1 = models.Project(title="Akıllı Şehirler", status="Aktif", year=2025, researcher_id=r1.id)
         db.add(p1)
         db.commit()
