@@ -56,7 +56,7 @@
 
 <script>
 async function fetchPublications() {
-    const res = await fetch('http://127.0.0.1:8000/publications');
+    const res = await fetch('https://acadex-0lpc.onrender.com/publications');
     const data = await res.json();
     const tbody = document.getElementById('publications-table');
     tbody.innerHTML = '';

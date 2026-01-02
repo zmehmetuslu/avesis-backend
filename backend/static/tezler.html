@@ -61,7 +61,7 @@
 
 <script>
 async function fetchTheses() {
-    const res = await fetch('http://127.0.0.1:8000/theses');
+    const res = await fetch('https://acadex-0lpc.onrender.com/theses');
     const data = await res.json();
     const tbody = document.getElementById('theses-table');
     tbody.innerHTML = '';

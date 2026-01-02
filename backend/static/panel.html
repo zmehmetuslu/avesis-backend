@@ -186,7 +186,7 @@
         // 3. HOCALARI GETİR (Dropdownları Doldur)
         async function loadResearchers() {
             try {
-                const res = await fetch("http://127.0.0.1:8000/researchers");
+                const res = await fetch("https://acadex-0lpc.onrender.com/researchers");
                 const data = await res.json();
                 
                 let options = "";
@@ -214,7 +214,7 @@
                 researcher_id: parseInt(document.getElementById("proj_researcher").value)
             };
             
-            await veriGonder("http://127.0.0.1:8000/projects", veri, "Proje");
+            await veriGonder("https://acadex-0lpc.onrender.com/projects", veri, "Proje");
         }
 
         // 5. TEZ EKLEME FONKSİYONU
@@ -228,7 +228,7 @@
                 advisor_id: parseInt(document.getElementById("thesis_advisor").value)
             };
 
-            await veriGonder("http://127.0.0.1:8000/theses", veri, "Tez");
+            await veriGonder("https://acadex-0lpc.onrender.com/theses", veri, "Tez");
         }
 
         // 6. YAYIN EKLEME FONKSİYONU (YENİ)
@@ -241,7 +241,7 @@
                 researcher_id: parseInt(document.getElementById("pub_researcher").value)
             };
 
-            await veriGonder("http://127.0.0.1:8000/publications", veri, "Yayın");
+            await veriGonder("https://acadex-0lpc.onrender.com/publications", veri, "Yayın");
         }
 
         // ORTAK GÖNDERME FONKSİYONU (Kod tekrarını önlemek için)
