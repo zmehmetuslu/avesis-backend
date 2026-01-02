@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yayınlar - AVESIS</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+<style>
+  body { display: flex; flex-direction: column; min-height: 100vh; }
+  main { flex: 1; }
+  footer { flex-shrink: 0; }
+</style>
+</head>
+<body class="bg-light">
+<header>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<div class="container">
+<a class="navbar-brand" href="#">AVESIS</a>
+<div class="collapse navbar-collapse">
+<ul class="navbar-nav">
+<li class="nav-item"><a href="tezler.html" class="nav-link">Tezler</a></li>
+<li class="nav-item"><a href="arastirmacilar.html" class="nav-link">Araştırmacılar</a></li>
+<li class="nav-item"><a href="projeler.html" class="nav-link">Projeler</a></li>
+<li class="nav-item"><a href="yayinlar.html" class="nav-link active">Yayınlar</a></li>
+</ul>
+</div>
+</div>
+</nav>
+</header>
+
+<main class="py-5">
+<div class="container">
+<h2 class="fw-bold text-primary mb-4">Yayınlar</h2>
+<div class="table-responsive">
+<table class="table table-hover shadow-sm bg-white">
+<thead class="table-primary">
+<tr>
+<th>Başlık</th>
+<th>Araştırmacı</th>
+<th>Tür</th>
+<th>Yıl</th>
+<th>Detay</th>
+</tr>
+</thead>
+<tbody id="publications-table"></tbody>
+</table>
+</div>
+</div>
+</main>
+
+<footer class="bg-primary text-white py-4 mt-auto">
+<div class="container text-center small">
+© 2025 AVESIS. Tüm hakları saklıdır.
+</div>
+</footer>
+
+<script>
+async function fetchPublications() {
+    const res = await fetch('http://127.0.0.1:8000/publications');
+    const data = await res.json();
+    const tbody = document.getElementById('publications-table');
+    tbody.innerHTML = '';
+    data.forEach(pub => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+<td>${pub.title}</td>
+<td>${pub.researcher}</td>
+<td>${pub.type}</td>
+<td>${pub.year}</td>
+<td><button class="btn btn-sm btn-primary">Görüntüle</button></td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+fetchPublications();
+</script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş | AVESIS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f5f7fa; }
+        .card { border-radius: 14px; box-shadow: 0 10px 20px rgba(0,0,0,0.08); border: none; }
+        .btn-primary { background-color: #2c6cff; border: none; padding: 10px; border-radius: 10px; font-weight: 600; }
+        .btn-primary:hover { background-color: #1a5cff; }
+        .form-control { border-radius: 10px; padding: 10px; }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card p-4" style="max-width: 400px; width: 100%;">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-primary">AVESIS</h2>
+            <p class="text-muted">Hesabınıza giriş yapın</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="mb-3">
+                <label class="form-label fw-bold">E-posta</label>
+                <input type="email" id="email" class="form-control" placeholder="admin@avesis.com" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label fw-bold">Şifre</label>
+                <input type="password" id="password" class="form-control" placeholder="123" required>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-sign-in-alt me-1"></i> Giriş Yap
+                </button>
+            </div>
+        </form>
+        
+        <div id="alertBox" class="mt-3"></div>
+
+        <div class="text-center mt-3">
+            <a href="#" class="text-primary small text-decoration-none">Şifremi unuttum</a>
+        </div>
+
+        <div class="text-center mt-3">
+    <span class="text-muted small">Hesabın yok mu?</span>
+    <a href="register.html" class="text-primary small text-decoration-none fw-bold">Hemen Kayıt Ol</a>
+</div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("loginForm").addEventListener("submit", async function(e) {
+        e.preventDefault(); // Sayfanın yenilenmesini engelle
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const alertBox = document.getElementById("alertBox");
+
+        try {
+            // Backend'e istek atıyoruz
+            const response = await fetch("http://127.0.0.1:8000/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: email, password: password })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Başarılı giriş
+                alertBox.innerHTML = `<div class="alert alert-success">Giriş başarılı! Yönlendiriliyorsunuz...</div>`;
+                
+                // Kullanıcı adını tarayıcı hafızasına kaydet (İlerde kullanmak için)
+                localStorage.setItem("user_name", data.user);
+                localStorage.setItem("user_role", data.role);
+
+                // 1 saniye sonra ana sayfaya git
+                setTimeout(() => {
+                    window.location.href = "index.html";
+                }, 1000);
+
+            } else {
+                // Hatalı giriş
+                alertBox.innerHTML = `<div class="alert alert-danger">Hatalı e-posta veya şifre!</div>`;
+            }
+        } catch (error) {
+            console.error("Hata:", error);
+            alertBox.innerHTML = `<div class="alert alert-warning">Sunucuya bağlanılamadı. Terminal açık mı?</div>`;
+        }
+    });
+</script>
+
+</body>
+</html>

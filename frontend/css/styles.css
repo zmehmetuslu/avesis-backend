@@ -1,0 +1,145 @@
+/* =============================== */
+/* GENEL TASARIM AYARLARI */
+/* =============================== */
+
+body {
+    font-family: 'Inter', Arial, sans-serif;
+    background-color: #f5f7fa;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Link düzeni */
+a {
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+a:hover {
+    opacity: 0.7;
+}
+
+/* Bootstrap primary rengini özelleştirme */
+:root {
+    --bs-primary: #2c6cff;
+    --bs-primary-rgb: 44, 108, 255;
+}
+
+/* =============================== */
+/* LOGIN SAYFASI */
+/* =============================== */
+
+.card {
+    border-radius: 14px !important;
+    background: #ffffff;
+}
+
+.btn-primary {
+    background-color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+    border-radius: 10px;
+    padding: 10px;
+    font-weight: 600;
+}
+
+/* Input kutuları */
+.form-control {
+    border-radius: 10px;
+    padding: 10px;
+}
+
+/* Kart gölgesi */
+.card {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* =============================== */
+/* NAVBAR (ileri kullanım) */
+/* =============================== */
+
+.navbar-custom {
+    background-color: var(--bs-primary);
+}
+
+.navbar-custom .nav-link,
+.navbar-custom .navbar-brand {
+    color: white !important;
+}
+
+/* =============================== */
+/* DASHBOARD KART TASARIMI (ileride) */
+/* =============================== */
+
+.dashboard-card {
+    border-radius: 16px;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.07);
+    transition: 0.2s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-3px);
+}
+
+/* =============================== */
+/* TABLO TASARIMI */
+/* =============================== */
+
+.table-custom {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table-custom thead {
+    background: var(--bs-primary);
+    color: white;
+}
+
+.table-custom tbody tr:hover {
+    background-color: #eef3ff;
+}
+
+/* =============================== */
+/* BUTTONLAR */
+/* =============================== */
+
+.btn-outline-primary {
+    border-radius: 10px;
+    padding: 8px 12px;
+}
+
+/* =============================== */
+/* FORMLAR */
+/* =============================== */
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+/* Placeholder rengi */
+::placeholder {
+    color: #999;
+}
+
+/* =============================== */
+/* TOOLS / ALERTS */
+/* =============================== */
+
+.alert-custom {
+    border-radius: 10px;
+    padding: 12px;
+}
+
+/* =============================== */
+/* MOBILE UYUMU */
+/* =============================== */
+
+@media (max-width: 480px) {
+    .card {
+        padding: 20px !important;
+    }
+}

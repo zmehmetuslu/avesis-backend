@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kayıt Ol | AVESIS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"/>
+    <style>
+        body { background-color: #f5f7fa; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .card { width: 100%; max-width: 400px; padding: 20px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+<div class="card bg-white">
+    <h3 class="text-center text-primary fw-bold mb-3">AVESIS Kayıt</h3>
+    
+    <div class="mb-3">
+        <label>Ad Soyad</label>
+        <input type="text" id="name" class="form-control" placeholder="Örn: Ahmet Yılmaz">
+    </div>
+
+    <div class="mb-3">
+        <label>E-posta</label>
+        <input type="text" id="email" class="form-control" placeholder="ornek@uni.edu.tr">
+    </div>
+
+    <div class="mb-3">
+        <label>Şifre</label>
+        <input type="password" id="password" class="form-control" placeholder="******">
+    </div>
+
+    <button type="button" onclick="kayitOl()" class="btn btn-success w-100 text-white fw-bold">Kayıt Ol</button>
+
+    <div id="mesaj" class="mt-3"></div>
+    
+    <div class="text-center mt-3">
+        <p class="small">Hesabın var mı? <a href="login.html">Giriş Yap</a></p>
+    </div>
+</div>
+
+<script>
+    async function kayitOl() {
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const mesajKutusu = document.getElementById("mesaj");
+
+        if(!name || !email || !password) {
+            mesajKutusu.innerHTML = '<div class="alert alert-warning">Lütfen tüm alanları doldurun.</div>';
+            return;
+        }
+
+        mesajKutusu.innerHTML = '<div class="text-warning">Kayıt yapılıyor...</div>';
+
+        try {
+            const response = await fetch("http://127.0.0.1:8000/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: name, email: email, password: password, role: "student" })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                mesajKutusu.innerHTML = `<div class="alert alert-success">${data.message} Yönlendiriliyorsunuz...</div>`;
+                setTimeout(() => { window.location.href = "login.html"; }, 2000);
+            } else {
+                mesajKutusu.innerHTML = `<div class="alert alert-danger">Hata: ${data.detail}</div>`;
+            }
+
+        } catch (error) {
+            console.error(error);
+            mesajKutusu.innerHTML = `<div class="alert alert-danger">Sunucu hatası!</div>`;
+        }
+    }
+</script>
+
+</body>
+</html>

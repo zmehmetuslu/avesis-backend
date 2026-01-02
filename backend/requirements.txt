@@ -1,0 +1,8 @@
+fastapi==0.121.3
+uvicorn==0.38.0
+sqlalchemy==2.0.45
+pydantic==2.12.4
+psycopg2-binary
+anyio
+starlette
+typing_extensions

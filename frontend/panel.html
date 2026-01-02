@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yönetim Paneli | AVESIS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); }
+        .card-header { border-radius: 15px 15px 0 0 !important; color: white; padding: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-dark px-4 py-3 shadow">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="fa fa-university me-2"></i>AVESIS PANEL
+            </a>
+            <div class="d-flex align-items-center">
+                <span id="userDisplay" class="text-white me-3 fw-bold small"></span>
+                <button onclick="cikisYap()" class="btn btn-outline-danger btn-sm fw-bold">
+                    <i class="fa fa-power-off me-1"></i> Çıkış
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3 class="fw-bold text-dark">👋 Hoşgeldiniz</h3>
+                <p class="text-muted">Buradan akademik verileri sisteme ekleyebilirsiniz.</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-4" id="card_proje">
+                <div class="card h-100">
+                    <div class="card-header bg-primary">
+                        <i class="fa fa-project-diagram me-2"></i> PROJE EKLE
+                    </div>
+                    <div class="card-body">
+                        <form onsubmit="projeEkle(event)">
+                            <div class="mb-3">
+                                <label class="form-label small text-muted fw-bold">PROJE BAŞLIĞI</label>
+                                <input type="text" id="proj_title" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small text-muted fw-bold">DURUM</label>
+                                <select id="proj_status" class="form-select">
+                                    <option value="Aktif">Devam Ediyor</option>
+                                    <option value="Tamamlandı">Tamamlandı</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small text-muted fw-bold">YIL</label>
+                                <input type="number" id="proj_year" class="form-control" value="2025">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small text-muted fw-bold">YÜRÜTÜCÜ HOCA</label>
+                                <select id="proj_researcher" class="form-select">
+                                    <option>Yükleniyor...</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 fw-bold">KAYDET</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4" id="card_yayin">
+                <div class="card h-100">
+                    <div class="card-header bg-success">
+                        <i class="fa fa-book-open me-2"></i> YAYIN EKLE
+                    </div>
+                    <div class="card-body">
+                        <form onsubmit="yayinEkle(event)">
+                            <div class="mb-3">
+                                <label class="form-label small text-muted fw-bold">YAYIN BAŞLIĞI</label>
+                                <input type="text" id="pub_title" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small text-muted fw-bold">TÜR</label>
+                                <select id="pub_type" class="form-select">
+                                    <option value="Makale">Makale</option>
+                                    <option value="Bildiri">Bildiri</option>
+                                    <option value="Kitap">Kitap</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small text-muted fw-bold">YIL</label>
+                                <input type="number" id="pub_year" class="form-control" value="2025">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small text-muted fw-bold">YAZAR (HOCA)</label>
+                                <select id="pub_researcher" class="form-select">
+                                    <option>Yükleniyor...</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100 fw-bold">KAYDET</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4" id="card_tez">
+                <div class="card h-100">
+                    <div class="card-header bg-danger">
+                        <i class="fa fa-graduation-cap me-2"></i> TEZ EKLE
+                    </div>
+                    <div class="card-body">
+                        <form onsubmit="tezEkle(event)">
+                            <div class="mb-3">
+                                <label class="form-label small text-muted fw-bold">TEZ BAŞLIĞI</label>
+                                <input type="text" id="thesis_title" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small text-muted fw-bold">ÖĞRENCİ ADI</label>
+                                <input type="text" id="thesis_student" class="form-control" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-6 mb-3">
+                                    <label class="form-label small text-muted fw-bold">TÜR</label>
+                                    <select id="thesis_type" class="form-select">
+                                        <option value="Yüksek Lisans">Yüksek Lisans</option>
+                                        <option value="Doktora">Doktora</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label class="form-label small text-muted fw-bold">YIL</label>
+                                    <input type="number" id="thesis_year" class="form-control" value="2025">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small text-muted fw-bold">DANIŞMAN</label>
+                                <select id="thesis_advisor" class="form-select">
+                                    <option>Yükleniyor...</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-danger w-100 fw-bold">KAYDET</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div> </div>
+
+    <script>
+        // 1. GÜVENLİK VE ROL KONTROLÜ
+        window.onload = async function() {
+            const user = localStorage.getItem("user");
+            const role = localStorage.getItem("role");
+
+            if (!user) {
+                window.location.href = "index.html"; // Giriş yapmamışsa at
+                return;
+            }
+
+            document.getElementById("userDisplay").innerText = "👤 " + user + " (" + (role === 'student' ? 'Öğrenci' : 'Akademisyen') + ")";
+
+            // Eğer ÖĞRENCİ ise Proje ve Yayın ekleyemesin (Kartları gizle)
+            if (role === "student") {
+                document.getElementById("card_proje").style.display = "none";
+                document.getElementById("card_yayin").style.display = "none";
+            }
+
+            // Hocaları veritabanından çekip kutulara doldur
+            await loadResearchers();
+        };
+
+        // 2. ÇIKIŞ YAP
+        function cikisYap() {
+            if(confirm("Çıkış yapılsın mı?")) {
+                localStorage.clear();
+                window.location.href = "index.html";
+            }
+        }
+
+        // 3. HOCALARI GETİR (Dropdownları Doldur)
+        async function loadResearchers() {
+            try {
+                const res = await fetch("http://127.0.0.1:8000/researchers");
+                const data = await res.json();
+                
+                let options = "";
+                data.forEach(hoca => {
+                    options += `<option value="${hoca.id}">${hoca.name}</option>`;
+                });
+
+                // 3 Kutuya da aynı listeyi doldur
+                document.getElementById("proj_researcher").innerHTML = options;
+                document.getElementById("thesis_advisor").innerHTML = options;
+                document.getElementById("pub_researcher").innerHTML = options;
+
+            } catch (err) {
+                console.log("Hocalar yüklenemedi", err);
+            }
+        }
+
+        // 4. PROJE EKLEME FONKSİYONU
+        async function projeEkle(e) {
+            e.preventDefault();
+            const veri = {
+                title: document.getElementById("proj_title").value,
+                status: document.getElementById("proj_status").value,
+                year: parseInt(document.getElementById("proj_year").value),
+                researcher_id: parseInt(document.getElementById("proj_researcher").value)
+            };
+            
+            await veriGonder("http://127.0.0.1:8000/projects", veri, "Proje");
+        }
+
+        // 5. TEZ EKLEME FONKSİYONU
+        async function tezEkle(e) {
+            e.preventDefault();
+            const veri = {
+                title: document.getElementById("thesis_title").value,
+                student: document.getElementById("thesis_student").value,
+                type: document.getElementById("thesis_type").value,
+                year: parseInt(document.getElementById("thesis_year").value),
+                advisor_id: parseInt(document.getElementById("thesis_advisor").value)
+            };
+
+            await veriGonder("http://127.0.0.1:8000/theses", veri, "Tez");
+        }
+
+        // 6. YAYIN EKLEME FONKSİYONU (YENİ)
+        async function yayinEkle(e) {
+            e.preventDefault();
+            const veri = {
+                title: document.getElementById("pub_title").value,
+                type: document.getElementById("pub_type").value,
+                year: parseInt(document.getElementById("pub_year").value),
+                researcher_id: parseInt(document.getElementById("pub_researcher").value)
+            };
+
+            await veriGonder("http://127.0.0.1:8000/publications", veri, "Yayın");
+        }
+
+        // ORTAK GÖNDERME FONKSİYONU (Kod tekrarını önlemek için)
+        async function veriGonder(url, veri, tur) {
+            try {
+                const res = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(veri)
+                });
+
+                if (res.ok) {
+                    alert(`✅ ${tur} Başarıyla Eklendi!`);
+                    location.reload(); // Sayfayı yenile ki form temizlensin
+                } else {
+                    alert("❌ Hata oluştu! Lütfen tekrar deneyin.");
+                }
+            } catch (err) {
+                alert("Backend sunucusuna ulaşılamadı!");
+            }
+        }
+    </script>
+</body>
+</html>
