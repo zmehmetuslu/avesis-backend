@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles 
-from fastapi.responses import FileResponse 
+from fastapi.responses import HTMLResponse 
 from sqlalchemy.orm import Session
 from typing import List
 import models, schemas
@@ -9,7 +9,7 @@ from database import engine, SessionLocal
 import os
 
 # --- 1. AYARLAR ---
-# Dosyaları 'main.py' ile aynı yerde ara
+# Kodun çalıştığı ana klasörü bulur
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Veritabanı tablolarını oluştur
@@ -36,48 +36,33 @@ def get_db():
         db.close()
 
 # ---------------------------------------------------------
-# 3. HTML SAYFALARI (DÜZELTİLDİ: Ana Dizinden Okuma)
+# 3. GARANTİLİ DOSYA SUNUCU
 # ---------------------------------------------------------
 
-# Sadece CSS ve Resimler için 'static' klasörünü bağla
+# Static klasörünü (CSS/Resimler için) bağla
 static_path = os.path.join(BASE_DIR, "static")
 if os.path.exists(static_path):
     app.mount("/static", StaticFiles(directory=static_path), name="static")
 
-# HTML dosyalarını ana dizinden (BASE_DIR) bulup getiren fonksiyon
+# Bu fonksiyon hata vermez, dosyayı manuel okur
 def serve_page(filename):
     file_path = os.path.join(BASE_DIR, filename)
-    return FileResponse(file_path)
+    
+    if not os.path.exists(file_path):
+        return HTMLResponse(content=f"<h1>HATA: {filename} dosyası bulunamadı!</h1>", status_code=404)
+        
+    with open(file_path, "r", encoding="utf-8") as f:
+        content = f.read()
+    return HTMLResponse(content=content)
 
+# --- SAYFA YÖNLENDİRMELERİ ---
 @app.get("/")
 def read_root(): return serve_page('index.html')
 
-@app.get("/index.html")
-def read_index(): return serve_page('index.html')
+@app.get("/{page_name}.html")
+def read_html_pages(page_name: str):
+    return serve_page(f"{page_name}.html")
 
-@app.get("/arastirmacilar.html")
-def read_arastirmacilar(): return serve_page('arastirmacilar.html')
-
-@app.get("/yayinlar.html")
-def read_yayinlar(): return serve_page('yayinlar.html')
-
-@app.get("/projeler.html")
-def read_projeler(): return serve_page('projeler.html')
-
-@app.get("/tezler.html")
-def read_tezler(): return serve_page('tezler.html')
-
-@app.get("/login.html")
-def read_login(): return serve_page('login.html')
-
-@app.get("/register.html")
-def read_register(): return serve_page('register.html')
-
-@app.get("/panel.html")
-def read_panel(): return serve_page('panel.html')
-
-@app.get("/kesfet.html")
-def read_kesfet(): return serve_page('kesfet.html')
 
 # ---------------------------------------------------------
 # 4. API ENDPOINTLERİ
@@ -85,8 +70,7 @@ def read_kesfet(): return serve_page('kesfet.html')
 
 @app.post("/register")
 def register(user: schemas.RegisterRequest, db: Session = Depends(get_db)):
-    db_user = db.query(models.User).filter(models.User.email == user.email).first()
-    if db_user:
+    if db.query(models.User).filter(models.User.email == user.email).first():
         raise HTTPException(status_code=400, detail="Bu e-posta zaten kayıtlı!")
     
     new_user = models.User(name=user.name, email=user.email, password=user.password, role=user.role)
@@ -106,8 +90,7 @@ def login(creds: schemas.LoginRequest, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=401, detail="Hatalı e-posta veya şifre")
     
-    # "undefined" HATASI BURADA ÇÖZÜLDÜ:
-    # Frontend 'user_name' bekliyordu, artık onu gönderiyoruz.
+    # "undefined" sorunu burada çözüldü: user_name gönderiyoruz
     return {"status": "success", "user_name": user.name, "role": user.role}
 
 @app.get("/publications", response_model=List[schemas.PublicationOut])
@@ -147,9 +130,7 @@ def create_thesis(item: schemas.ThesisCreate, db: Session = Depends(get_db)):
     db.add(new_thesis); db.commit()
     return {"message": "Tez eklendi"}
 
-# ---------------------------------------------------------
-# 5. BAŞLANGIÇ VERİLERİ
-# ---------------------------------------------------------
+# --- BAŞLANGIÇ VERİLERİ ---
 @app.on_event("startup")
 def startup_data():
     db = SessionLocal()
@@ -157,8 +138,8 @@ def startup_data():
         r1 = models.Researcher(name="Dr. Ali Yılmaz", field="Yapay Zeka", email="ali@uni.edu", profile="#")
         db.add(r1); db.commit(); db.refresh(r1)
         
-        if not db.query(models.User).filter(models.User.email == "admin@ACADEX.com").first():
-            admin = models.User(name="Yönetici", email="admin@ACADEX.com", password="123", role="admin")
+        if not db.query(models.User).filter(models.User.email == "admin@acadex.com").first():
+            admin = models.User(name="Yönetici", email="admin@acadex.com", password="123", role="admin")
             db.add(admin)
             
         p1 = models.Project(title="Akıllı Şehirler", status="Aktif", year=2025, researcher_id=r1.id)
