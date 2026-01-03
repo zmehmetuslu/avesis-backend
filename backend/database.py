@@ -4,7 +4,7 @@ import os # YENİ: Bilgisayarın/Sunucunun ayarlarına bakmak için
 
 # 1. AKILLI ADRES SEÇİMİ
 # Render'da "DATABASE_URL" diye bir ayar arar. Bulamazsa (senin bilgisayarında) SQLite kullanır.
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./avesis.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./ACADEX.db")
 
 # Render bazen adresi "postgres://" diye verir ama SQLAlchemy "postgresql://" ister.
 # Bu kod o ufak harf hatasını otomatik düzeltir.

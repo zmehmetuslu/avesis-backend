@@ -1,78 +1,176 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Projeler - AVESIS</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
-<style>
-  body { display: flex; flex-direction: column; min-height: 100vh; }
-  main { flex: 1; }
-  footer { flex-shrink: 0; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeler - ACADEX</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body class="bg-light">
-<header>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-<div class="container">
-<a class="navbar-brand" href="#">AVESIS</a>
-<div class="collapse navbar-collapse">
-<ul class="navbar-nav">
-<li class="nav-item"><a href="tezler.html" class="nav-link">Tezler</a></li>
-<li class="nav-item"><a href="arastirmacilar.html" class="nav-link">Araştırmacılar</a></li>
-<li class="nav-item"><a href="projeler.html" class="nav-link active">Projeler</a></li>
-<li class="nav-item"><a href="yayinlar.html" class="nav-link">Yayınlar</a></li>
-</ul>
-</div>
-</div>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="index.html">
+            <i class="fa fa-layer-group me-2"></i>ACADEX
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbar">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a href="yayinlar.html" class="nav-link">Yayınlar</a></li>
+                <li class="nav-item"><a href="projeler.html" class="nav-link active">Projeler</a></li>
+                <li class="nav-item"><a href="arastirmacilar.html" class="nav-link">Araştırmacılar</a></li>
+                <li class="nav-item"><a href="tezler.html" class="nav-link">Tezler</a></li>
+                <li class="nav-item ms-lg-3">
+                    <a href="login.html" class="btn btn-light text-primary fw-bold btn-sm mt-1 mt-lg-0">Giriş Yap</a>
+                </li>
+            </ul>
+        </div>
+    </div>
 </nav>
-</header>
 
 <main class="py-5">
-<div class="container">
-<h2 class="fw-bold text-primary mb-4">Projeler</h2>
-<div class="table-responsive">
-<table class="table table-hover shadow-sm bg-white">
-<thead class="table-primary">
-<tr>
-<th>Proje Başlığı</th>
-<th>Araştırmacı</th>
-<th>Durum</th>
-<th>Yıl</th>
-<th>Detay</th>
-</tr>
-</thead>
-<tbody id="projects-table"></tbody>
-</table>
-</div>
-</div>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold text-primary">Projeler</h2>
+            <span class="badge bg-primary fs-6" id="toplam-sayi">Yükleniyor...</span>
+        </div>
+        
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0 text-center align-middle">
+                        <thead class="table-primary text-white">
+                            <tr>
+                                <th class="py-3">Proje Başlığı</th>
+                                <th class="py-3">Yürütücü</th>
+                                <th class="py-3">Durum</th>
+                                <th class="py-3">Yıl</th>
+                                <th class="py-3">İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="projects-table">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
 
-<footer class="bg-primary text-white py-4 mt-auto">
-<div class="container text-center small">
-© 2025 AVESIS. Tüm hakları saklıdır.
+<div class="modal fade" id="detayModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold" id="modalBaslik">Proje Detayı</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <i class="fa fa-folder-open text-primary fa-4x mb-3"></i>
+                    <h4 class="fw-bold text-dark" id="modalProjeAdi">...</h4>
+                </div>
+                
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="fw-bold text-muted">Yürütücü:</span>
+                        <span id="modalYurutucu" class="text-dark fw-bold">...</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="fw-bold text-muted">Durum:</span>
+                        <span id="modalDurum">...</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="fw-bold text-muted">Yıl:</span>
+                        <span id="modalYil" class="badge bg-secondary rounded-pill fs-6">...</span>
+                    </li>
+                    <li class="list-group-item mt-2 bg-light rounded p-3 text-muted small">
+                        <i class="fa fa-info-circle me-1"></i>
+                        Bu proje üniversitemiz bünyesinde akademik teşvik kapsamında yürütülmektedir.
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer bg-light border-0">
+                <button type="button" class="btn btn-secondary w-100 fw-bold" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
 </div>
+<footer class="bg-white border-top py-4 mt-auto">
+    <div class="container text-center small text-muted">
+        © 2026 ACADEX. Tüm hakları saklıdır.
+    </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+
 <script>
-async function fetchProjects() {
-    const res = await fetch('https://acadex-0lpc.onrender.com/projects');
-    const data = await res.json();
-    const tbody = document.getElementById('projects-table');
-    tbody.innerHTML = '';
-    data.forEach(p => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-<td>${p.title}</td>
-<td>${p.researcher}</td>
-<td>${p.status}</td>
-<td>${p.year}</td>
-<td><button class="btn btn-sm btn-primary">Görüntüle</button></td>
-        `;
-        tbody.appendChild(row);
-    });
-}
-fetchProjects();
+    // Projeleri Çek ve Listele
+    async function fetchProjects() {
+        try {
+            const res = await fetch('https://acadex-0lpc.onrender.com/projects');
+            const data = await res.json();
+            
+            // Sayıyı güncelle
+            document.getElementById('toplam-sayi').innerText = data.length + " Proje";
+
+            const tbody = document.getElementById('projects-table');
+            tbody.innerHTML = '';
+            
+            data.forEach(p => {
+                const row = document.createElement('tr');
+                
+                // Duruma göre renk (Aktifse yeşil, bitmişse gri)
+                const durumBadge = p.status === "Aktif" 
+                    ? `<span class="badge bg-success">Aktif</span>` 
+                    : `<span class="badge bg-secondary">Tamamlandı</span>`;
+
+                // SATIRI OLUŞTUR
+                row.innerHTML = `
+                    <td class="fw-bold text-start ps-4">${p.title}</td>
+                    <td><i class="fa fa-user-tie text-muted me-1"></i>${p.researcher}</td>
+                    <td>${durumBadge}</td>
+                    <td>${p.year}</td>
+                    <td>
+                        <button onclick="detayGoster('${p.title}', '${p.researcher}', '${p.status}', '${p.year}')" 
+                                class="btn btn-sm btn-primary fw-bold shadow-sm">
+                            <i class="fa fa-eye me-1"></i> Görüntüle
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        } catch (error) {
+            console.error("Hata:", error);
+            document.getElementById('projects-table').innerHTML = `<tr><td colspan="5" class="text-danger">Veriler yüklenemedi!</td></tr>`;
+        }
+    }
+
+    // Modal Açma Fonksiyonu
+    function detayGoster(baslik, hoca, durum, yil) {
+        // Modal içindeki yazıları doldur
+        document.getElementById('modalProjeAdi').innerText = baslik;
+        document.getElementById('modalYurutucu').innerText = hoca;
+        document.getElementById('modalYil').innerText = yil;
+        
+        const durumElement = document.getElementById('modalDurum');
+        if(durum === "Aktif") {
+            durumElement.innerHTML = '<span class="text-success fw-bold"><i class="fa fa-check-circle"></i> Devam Ediyor</span>';
+        } else {
+            durumElement.innerHTML = '<span class="text-muted fw-bold"><i class="fa fa-lock"></i> Tamamlandı</span>';
+        }
+
+        // Modalı aç (Bootstrap kodu)
+        var myModal = new bootstrap.Modal(document.getElementById('detayModal'));
+        myModal.show();
+    }
+
+    // Sayfa açılınca çalıştır
+    fetchProjects();
 </script>
+
 </body>
 </html>

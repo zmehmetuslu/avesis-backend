@@ -156,8 +156,8 @@ def startup_data():
         db.commit()
         db.refresh(r1)
         
-        if not db.query(models.User).filter(models.User.email == "admin@avesis.com").first():
-            admin = models.User(name="Yönetici", email="admin@avesis.com", password="123", role="admin")
+        if not db.query(models.User).filter(models.User.email == "admin@ACADEX.com").first():
+            admin = models.User(name="Yönetici", email="admin@ACADEX.com", password="123", role="admin")
             db.add(admin)
             
         p1 = models.Project(title="Akıllı Şehirler", status="Aktif", year=2025, researcher_id=r1.id)

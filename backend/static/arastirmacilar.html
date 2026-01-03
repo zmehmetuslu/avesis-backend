@@ -1,74 +1,100 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Araştırmacılar - AVESIS</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
-<style>
-  body { display: flex; flex-direction: column; min-height: 100vh; }
-  main { flex: 1; }
-  footer { flex-shrink: 0; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Araştırmacılar - ACADEX</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body class="bg-light">
-<header>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-<div class="container">
-<a class="navbar-brand" href="#">AVESIS</a>
-<div class="collapse navbar-collapse">
-<ul class="navbar-nav">
-<li class="nav-item"><a href="tezler.html" class="nav-link">Tezler</a></li>
-<li class="nav-item"><a href="arastirmacilar.html" class="nav-link active">Araştırmacılar</a></li>
-<li class="nav-item"><a href="projeler.html" class="nav-link">Projeler</a></li>
-<li class="nav-item"><a href="yayinlar.html" class="nav-link">Yayınlar</a></li>
-</ul>
-</div>
-</div>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="index.html"><i class="fa fa-layer-group me-2"></i>ACADEX</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbar">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a href="yayinlar.html" class="nav-link">Yayınlar</a></li>
+                <li class="nav-item"><a href="projeler.html" class="nav-link">Projeler</a></li>
+                <li class="nav-item"><a href="arastirmacilar.html" class="nav-link active">Araştırmacılar</a></li>
+                <li class="nav-item"><a href="tezler.html" class="nav-link">Tezler</a></li>
+                <li class="nav-item ms-lg-3"><a href="login.html" class="btn btn-light text-primary fw-bold btn-sm mt-1 mt-lg-0">Giriş Yap</a></li>
+            </ul>
+        </div>
+    </div>
 </nav>
-</header>
 
 <main class="py-5">
-<div class="container">
-<h2 class="fw-bold text-primary mb-4">Araştırmacılar</h2>
-<div class="table-responsive">
-<table class="table table-hover shadow-sm bg-white">
-<thead class="table-primary">
-<tr>
-<th>Adı</th>
-<th>Alan</th>
-<th>E-posta</th>
-<th>Profil</th>
-</tr>
-</thead>
-<tbody id="researchers-table"></tbody>
-</table>
-</div>
-</div>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold text-primary">Akademik Kadro</h2>
+            <span class="badge bg-primary fs-6" id="toplam-sayi">Yükleniyor...</span>
+        </div>
+        
+        <div class="row g-4" id="researchers-grid">
+            </div>
+    </div>
 </main>
 
-<footer class="bg-primary text-white py-4 mt-auto">
-<div class="container text-center small">
-© 2025 AVESIS. Tüm hakları saklıdır.
+<div class="modal fade" id="hocaModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title fw-bold">Akademisyen Profili</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <div class="bg-light rounded-circle d-inline-flex p-4 mb-3 shadow-sm">
+                    <i class="fa fa-user-graduate fa-4x text-warning"></i>
+                </div>
+                <h4 class="fw-bold mb-1" id="modalAd">...</h4>
+                <span class="badge bg-primary mb-3" id="modalAlan">...</span>
+                
+                <div class="d-grid gap-2 mt-3">
+                    <a href="#" class="btn btn-outline-dark" id="modalEmailBtn"><i class="fa fa-envelope me-2"></i> E-posta Gönder</a>
+                    <a href="#" target="_blank" class="btn btn-dark" id="modalProfilBtn"><i class="fa fa-external-link-alt me-2"></i> Akademik Profil</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<footer class="bg-white border-top py-4 mt-auto">
+    <div class="container text-center small text-muted">© 2026 ACADEX. Tüm hakları saklıdır.</div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 <script>
 async function fetchResearchers() {
-    const res = await fetch('https://acadex-0lpc.onrender.com/researchers');
-    const data = await res.json();
-    const tbody = document.getElementById('researchers-table');
-    tbody.innerHTML = '';
-    data.forEach(r => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-<td>${r.name}</td>
-<td>${r.field}</td>
-<td>${r.email ? r.email : '-'}</td>
-<td>${r.profile ? `<a href="${r.profile}" class="btn btn-sm btn-primary">Profil</a>` : '-'}</td>
-        `;
-        tbody.appendChild(row);
-    });
+    try {
+        const res = await fetch('https://acadex-0lpc.onrender.com/researchers');
+        const data = await res.json();
+        document.getElementById('toplam-sayi').innerText = data.length + " Akademisyen";
+        const grid = document.getElementById('researchers-grid');
+        grid.innerHTML = '';
+        data.forEach(r => {
+            const col = document.createElement('div');
+            col.className = 'col-md-6 col-lg-4';
+            col.innerHTML = `
+                <div class="card h-100 border-0 shadow-sm text-center p-4">
+                    <div class="mb-3 text-warning"><i class="fa fa-user-circle fa-4x"></i></div>
+                    <h5 class="fw-bold text-dark">${r.name}</h5>
+                    <p class="text-muted small mb-3">${r.field}</p>
+                    <button onclick="detay('${r.name}', '${r.field}', '${r.email}', '${r.profile}')" class="btn btn-sm btn-outline-primary fw-bold rounded-pill px-4">Profili İncele</button>
+                </div>
+            `;
+            grid.appendChild(col);
+        });
+    } catch (e) { console.error(e); }
+}
+function detay(ad, alan, email, profil) {
+    document.getElementById('modalAd').innerText = ad;
+    document.getElementById('modalAlan').innerText = alan;
+    document.getElementById('modalEmailBtn').href = "mailto:" + email;
+    document.getElementById('modalProfilBtn').href = profil;
+    new bootstrap.Modal(document.getElementById('hocaModal')).show();
 }
 fetchResearchers();
 </script>
