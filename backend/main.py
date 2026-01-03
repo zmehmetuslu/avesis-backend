@@ -1,19 +1,19 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles # YENİ: HTML dosyalarını sunmak için şart
-from fastapi.responses import FileResponse  # YENİ: Anasayfayı yönlendirmek için şart
+from fastapi.staticfiles import StaticFiles 
+from fastapi.responses import FileResponse 
 from sqlalchemy.orm import Session
 from typing import List
 import models, schemas
 from database import engine, SessionLocal
 import os
 
-# Tabloları oluştur
+# Veritabanı tablolarını oluştur
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# İzinler
+# İzinler (CORS)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,22 +21,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- KRİTİK DÜZELTME BAŞLANGICI ---
-
-# 1. Static Klasörünü Tanıt (Render'ın HTML dosyalarını bulması için)
-# Bu kod diyor ki: "/static" adresine girilirse "static" klasöründeki dosyayı ver.
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# 2. Anasayfa Yönlendirmesi (Site açılınca direkt index.html gelsin)
-# Kullanıcı siteye girdiği an (root url) index.html dosyasını gönderiyoruz.
-@app.get("/")
-def read_root():
-    return FileResponse('static/index.html')
-
-# --- KRİTİK DÜZELTME BİTİŞİ ---
-
-
-# Database Bağlantısı
+# ---------------------------------------------------------
+# 1. VERİTABANI BAĞLANTISI
+# ---------------------------------------------------------
 def get_db():
     db = SessionLocal()
     try:
@@ -44,67 +31,38 @@ def get_db():
     finally:
         db.close()
 
-# --- KAYIT OLMA ---
+# ---------------------------------------------------------
+# 2. API ENDPOINTLERİ (Veri alışverişi yapan kısımlar)
+# ---------------------------------------------------------
+
 @app.post("/register")
 def register(user: schemas.RegisterRequest, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Bu e-posta zaten kayıtlı!")
-    
-    new_user = models.User(
-        name=user.name,
-        email=user.email,
-        password=user.password,
-        role=user.role
-    )
+    new_user = models.User(name=user.name, email=user.email, password=user.password, role=user.role)
     db.add(new_user)
-    
     if user.role == "researcher":
-        new_researcher = models.Researcher(
-            name=user.name,
-            email=user.email,
-            field="Genel",
-            profile="#"
-        )
+        new_researcher = models.Researcher(name=user.name, email=user.email, field="Genel", profile="#")
         db.add(new_researcher)
-        
     db.commit()
     return {"message": "Kayıt Başarılı"}
 
-# --- GİRİŞ YAPMA ---
 @app.post("/login")
 def login(creds: schemas.LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(
-        models.User.email == creds.email, 
-        models.User.password == creds.password
-    ).first()
+    user = db.query(models.User).filter(models.User.email == creds.email, models.User.password == creds.password).first()
     if not user:
         raise HTTPException(status_code=401, detail="Hatalı e-posta veya şifre")
     return {"status": "success", "user": user.name, "role": user.role}
 
-# --- VERİ LİSTELEME ---
 @app.get("/publications", response_model=List[schemas.PublicationOut])
 def get_publications(db: Session = Depends(get_db)):
     pubs = db.query(models.Publication).all()
-    return [
-        {
-            "id": p.id, 
-            "title": p.title, 
-            "type": p.type, 
-            "year": p.year,
-            "researcher": p.researcher.name if p.researcher else "Bilinmiyor"
-        } 
-        for p in pubs
-    ]
+    return [{"id": p.id, "title": p.title, "type": p.type, "year": p.year, "researcher": p.researcher.name if p.researcher else "Bilinmiyor"} for p in pubs]
 
 @app.post("/publications")
 def create_publication(item: schemas.PublicationCreate, db: Session = Depends(get_db)):
-    new_pub = models.Publication(
-        title=item.title, 
-        type=item.type, 
-        year=item.year, 
-        researcher_id=item.researcher_id
-    )
+    new_pub = models.Publication(title=item.title, type=item.type, year=item.year, researcher_id=item.researcher_id)
     db.add(new_pub)
     db.commit()
     return {"message": "Yayın başarıyla eklendi"}
@@ -116,22 +74,7 @@ def get_researchers(db: Session = Depends(get_db)):
 @app.get("/projects", response_model=List[schemas.ProjectOut])
 def get_projects(db: Session = Depends(get_db)):
     projects = db.query(models.Project).all()
-    return [
-        {
-            "id": p.id, "title": p.title, "status": p.status, "year": p.year,
-            "researcher": p.researcher.name if p.researcher else "Bilinmiyor"
-        } for p in projects
-    ]
-
-@app.get("/theses", response_model=List[schemas.ThesisOut])
-def get_theses(db: Session = Depends(get_db)):
-    theses = db.query(models.Thesis).all()
-    return [
-        {
-            "id": t.id, "title": t.title, "student": t.student, "type": t.type, "year": t.year,
-            "advisor_name": t.advisor.name if t.advisor else "Bilinmiyor"
-        } for t in theses
-    ]
+    return [{"id": p.id, "title": p.title, "status": p.status, "year": p.year, "researcher": p.researcher.name if p.researcher else "Bilinmiyor"} for p in projects]
 
 @app.post("/projects")
 def create_project(item: schemas.ProjectCreate, db: Session = Depends(get_db)):
@@ -140,6 +83,11 @@ def create_project(item: schemas.ProjectCreate, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Proje eklendi"}
 
+@app.get("/theses", response_model=List[schemas.ThesisOut])
+def get_theses(db: Session = Depends(get_db)):
+    theses = db.query(models.Thesis).all()
+    return [{"id": t.id, "title": t.title, "student": t.student, "type": t.type, "year": t.year, "advisor_name": t.advisor.name if t.advisor else "Bilinmiyor"} for t in theses]
+
 @app.post("/theses")
 def create_thesis(item: schemas.ThesisCreate, db: Session = Depends(get_db)):
     new_thesis = models.Thesis(title=item.title, student=item.student, type=item.type, year=item.year, advisor_id=item.advisor_id)
@@ -147,17 +95,67 @@ def create_thesis(item: schemas.ThesisCreate, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Tez eklendi"}
 
+# ---------------------------------------------------------
+# 3. HTML SAYFALARINI SUNMA (İŞTE EKSİK OLAN KISIM BURASIYDI)
+# ---------------------------------------------------------
+
+# Önce CSS ve JS dosyaları için static klasörünü bağlayalım
+app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/css", StaticFiles(directory="static/css"), name="css") # CSS klasörünü de tanıt
+
+# Sayfalar için Özel Yönlendirmeler
+@app.get("/")
+def read_root():
+    return FileResponse('static/index.html')
+
+@app.get("/index.html")
+def read_index():
+    return FileResponse('static/index.html')
+
+@app.get("/arastirmacilar.html")
+def read_arastirmacilar():
+    return FileResponse('static/arastirmacilar.html')
+
+@app.get("/yayinlar.html")
+def read_yayinlar():
+    return FileResponse('static/yayinlar.html')
+
+@app.get("/projeler.html")
+def read_projeler():
+    return FileResponse('static/projeler.html')
+
+@app.get("/tezler.html")
+def read_tezler():
+    return FileResponse('static/tezler.html')
+
+@app.get("/login.html")
+def read_login():
+    return FileResponse('static/login.html')
+
+@app.get("/register.html")
+def read_register():
+    return FileResponse('static/register.html')
+
+@app.get("/panel.html")
+def read_panel():
+    return FileResponse('static/panel.html')
+
+@app.get("/kesfet.html")
+def read_kesfet():
+    return FileResponse('static/kesfet.html')
+
+# ---------------------------------------------------------
+# 4. BAŞLANGIÇ VERİLERİ (İLK ÇALIŞTIRMADA DOLACAK)
+# ---------------------------------------------------------
 @app.on_event("startup")
 def startup_data():
     db = SessionLocal()
-    # Eğer hiç araştırmacı yoksa örnek veri ekle
     if not db.query(models.Researcher).first():
         r1 = models.Researcher(name="Dr. Ali Yılmaz", field="Yapay Zeka", email="ali@uni.edu", profile="#")
         db.add(r1)
         db.commit()
         db.refresh(r1)
         
-        # Admin ekle (Eğer yoksa)
         if not db.query(models.User).filter(models.User.email == "admin@avesis.com").first():
             admin = models.User(name="Yönetici", email="admin@avesis.com", password="123", role="admin")
             db.add(admin)
